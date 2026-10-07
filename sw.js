@@ -1,5 +1,5 @@
-/* Air2Fiber Service Worker, Version 0.29.1, Build 637b58c697 */
-const C = "air2fiber-0.29.1-637b58c697";
+/* Air2Fiber Service Worker, Version 0.30.0, Build 97d064b494 */
+const C = "air2fiber-0.30.0-97d064b494";
 const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(C).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
