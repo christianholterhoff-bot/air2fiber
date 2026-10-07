@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Air²Fiber v0.31.1</title>
+<title>Air²Fiber v0.31.2</title>
 <style>
   /* ============================================================
      Design-Tokens (Farbpalette)
@@ -406,7 +406,7 @@
   .req{color:var(--verm);font-weight:700}
   select.req-miss{border-color:var(--verm);box-shadow:0 0 0 2px rgba(235,75,10,.15)}
 
-  /* ============ Tailwind Look (v0.31.1) ============ */
+  /* ============ Tailwind Look (v0.31.2) ============ */
   body{font-size:14px;line-height:1.5;color:var(--ink);background:var(--bg)}
   .lang-sel{background:#1e293b;color:#f8fafc;border:1px solid #334155;border-radius:8px;padding:6px 8px;font:inherit;font-size:13px;max-width:170px}
   html[dir=rtl] svg,html[dir=rtl] canvas,html[dir=rtl] input[type=number],html[dir=rtl] .mono,html[dir=rtl] .ec{direction:ltr}
@@ -627,6 +627,7 @@ body.rp-open #scRep{display:block;position:fixed;inset:0;z-index:9999;background
 .rp-m{border-left:4px solid #dc2626;background:#fef2f2;padding:6px 10px;margin:6px 0}
 .rp-ph{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:6px}.rp-ph figure{margin:0;break-inside:avoid}.rp-ph img{width:100%;height:auto;display:block;background:#f1f5f9}.rp-ph figcaption{font-size:10px;color:#555}
 .rp-schema img{width:100%;max-width:520px;display:block;margin:0 auto}
+.rp-pk{margin:2px 0 3px;padding-left:15px;font-size:10px;font-weight:400}.rp-ok{font-size:10px;color:#0f766e}
 .rp-t{width:100%;border-collapse:collapse;font-size:11px}.rp-t th{background:#0f766e;color:#fff;text-align:left;padding:3px 5px}.rp-t td{padding:3px 5px;border-bottom:1px solid #eee;vertical-align:top}.rp-t tr{break-inside:avoid}.rp-t tr.g td{background:#e2e8f0;font-weight:700}
 .rp-b{color:#fff;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;white-space:nowrap}
 .rp-sig{margin-top:36px;border-top:1px solid #333;width:240px;font-size:11px;color:#555;padding-top:2px}.rp-foot{margin-top:20px;text-align:center;font-size:10px;color:#999}
@@ -687,7 +688,7 @@ body.rp-open #scRep{display:block;position:fixed;inset:0;z-index:9999;background
   <nav class="tabs"><button class="tab" data-tab="calc">Einblasrechner <span class="beta">Beta</span></button><button class="tab" data-tab="audit">Montageaudit</button><button class="tab" data-tab="nvt">NVT Audit <span class="beta">Beta</span></button><button class="tab" data-tab="ns">NVT Schnellcheck</button></nav>
   <div class="spacer"></div>
   <select id="langSel" class="hbtn lang-sel" data-i18n-skip aria-label="Sprache / Language" title="Sprache / Language"></select>
-  <span class="ver-badge" id="verBadge">v0.31.1</span>
+  <span class="ver-badge" id="verBadge">v0.31.2</span>
   <button class="hbtn ghost calc-only" id="btnMatrix">Reichweiten-Matrix</button>
   <button class="hbtn ghost calc-only" id="btnHelp">? Hilfe</button>
   <button class="hbtn ghost calc-only" id="btnReset">Zurücksetzen</button>
@@ -1626,7 +1627,7 @@ const LIMG={
 
 Object.assign(GIMG,LIMG);
 
-const VERSION="0.31.1";
+const VERSION="0.31.2";
 
 /* ============================================================
    DATENBASIS  (aus Vetter „Kompatible Systeme — FTTx NE 3")
@@ -5533,26 +5534,34 @@ async function scPDF(silent){
       P.y+=4; });
   }
   // Schema
-  const img=await scSchemaImg("auf"), img2=await scSchemaImg("exp");
-  if(img){ h2("Übersicht am Schema",260); const iw=(CW-10)/2; P.image(img,M,P.y,iw,iw); if(img2) P.image(img2,M+iw+10,P.y,iw,iw); P.y+=iw+6;
+  const img2=await scSchemaImg("exp");
+  if(img2){ h2("Übersicht am Schema",470); const iw=Math.min(CW,430); P.image(img2,M+(CW-iw)/2,P.y,iw,iw); P.y+=iw+6;
     const lg=[["#059669","in Ordnung"],["#dc2626","Mangel"],["#64748b","entfällt"],["#d97706","offen"]]; let lx=M+(CW-320)/2;
     lg.forEach(([c,t])=>{ P.rect(lx,P.y+2,9,9,c); P.text(lx+13,P.y+10,t,8,false,"#444444"); lx+=80; });
     P.y+=20; }
   // Tabelle nach Gruppen
   h2("Ergebnis je Bereich");
-  const cx=[M,M+24,M+214,M+284,M+CW-34];
-  const head=()=>{ P.rect(M,P.y,CW,16,PET); ["Nr.","Bereich","Ergebnis","Bemerkung","Fotos"].forEach((t,i)=>P.text(cx[i]+4,P.y+11,t,8.5,true,"#ffffff")); P.y+=16; };
+  const cx=[M,M+24,M+290,M+354,M+CW-34];
+  const head=()=>{ P.rect(M,P.y,CW,16,PET); ["Nr.","Bereich und Prüfkriterien","Ergebnis","Bemerkung","Fotos"].forEach((t,i)=>P.text(cx[i]+4,P.y+11,t,8.5,true,"#ffffff")); P.y+=16; };
   head();
   SC_GROUPS.forEach(g=>{
-    if(P.ensure(34)) head();
+    if(P.ensure(60)) head();
     P.rect(M,P.y,CW,14,"#e2e8f0"); P.text(M+6,P.y+10,NS_GROUPS[g],8.5,true,"#334155"); P.y+=14;
     scGroupSpots(g).forEach((sp,k)=>{ const a=SC.a[sp.id];
-      const nl=wrapText(a.note||"",8,false,cx[4]-cx[3]-8), tl=wrapText(sp.t,8.5,false,cx[2]-cx[1]-8);
-      const hh=Math.max(nl.length*10,tl.length*10.5,10.5)+4.5;
+      const bw=cx[2]-cx[1]-8;
+      const tl=wrapText(sp.t,8.5,true,bw);
+      const pl=sp.p.map(x=>wrapText(x,7.8,false,bw-9));
+      const ol=wrapText("Vollständig, wenn "+sp.ok,7.5,false,bw);
+      const nl=wrapText(a.note||"",8,false,cx[4]-cx[3]-8);
+      const lh=tl.length*10.5+pl.reduce((n,l)=>n+l.length*9.6,0)+ol.length*9+4;
+      const hh=Math.max(nl.length*10,lh)+5;
       if(P.ensure(hh)) head();
       if(k%2) P.rect(M,P.y,CW,hh,"#f8fafc");
       P.text(cx[0]+4,P.y+10.5,String(sp.id),8.5,true);
-      tl.forEach((l,i)=>P.text(cx[1]+4,P.y+10.5+i*10.5,l,8.5));
+      let yy=P.y;
+      tl.forEach(l=>{ P.text(cx[1]+4,yy+10.5,l,8.5,true); yy+=10.5; });
+      pl.forEach(L=>{ L.forEach((l,j)=>{ if(j===0) P.text(cx[1]+4,yy+9.4,"•",7.8,false,"#333333"); P.text(cx[1]+13,yy+9.4,l,7.8,false,"#333333"); yy+=9.6; }); });
+      ol.forEach(l=>{ P.text(cx[1]+4,yy+9,l,7.5,false,"#0f766e"); yy+=9; });
       const st=a.st?SC_ST[a.st]:null; P.rect(cx[2]+4,P.y+2,58,11,st?st.c:"#d97706"); P.text(cx[2]+9,P.y+10.5,st?st.t:"offen",7.8,true,"#ffffff");
       nl.forEach((l,i)=>P.text(cx[3]+4,P.y+10.5+i*10,l,8,false,"#333333"));
       if(a.photos.length) P.text(cx[4]+12,P.y+10.5,String(a.photos.length),8.5);
@@ -5588,9 +5597,9 @@ function scViewHtml(){
   <div class="rp-res" style="border-color:${r.c};background:${r.bg}"><b style="color:${r.c}">${r.t}</b><div>${esc(r.d)}</div><div><b>${e.c.ok} in Ordnung, ${e.c.mangel} ${e.c.mangel===1?"Mangel":"Mängel"}, ${e.c.na} entfällt${e.c.offen?`, ${e.c.offen} offen`:""}</b></div></div></div>`;
   if(mg.length){ h+=`<h2>Mängel (${mg.length})</h2>`+mg.map(id=>{ const sp=NS_SPOTS.find(x=>x.id===id), a=SC.a[id]; return `<div class="rp-m"><b>Bereich ${id}: ${esc(sp.t)}</b><div>${esc(a.note||"Keine Beschreibung eingetragen.")}</div>${ph(a.photos,"Bereich "+id)}</div>`; }).join(""); }
   h+=`<h2>Übersicht am Schema</h2><div id="rpSchema" class="rp-schema"></div>`;
-  h+=`<h2>Ergebnis je Bereich</h2><table class="rp-t"><tr><th>Nr.</th><th>Bereich</th><th>Ergebnis</th><th>Bemerkung</th><th>Fotos</th></tr>`;
+  h+=`<h2>Ergebnis je Bereich</h2><table class="rp-t"><tr><th>Nr.</th><th>Bereich und Prüfkriterien</th><th>Ergebnis</th><th>Bemerkung</th><th>Fotos</th></tr>`;
   SC_GROUPS.forEach(g=>{ h+=`<tr class="g"><td colspan="5">${NS_GROUPS[g]}</td></tr>`;
-    scGroupSpots(g).forEach(sp=>{ const a=SC.a[sp.id], st=a.st?SC_ST[a.st]:null; h+=`<tr><td>${sp.id}</td><td>${esc(sp.t)}</td><td><span class="rp-b" style="background:${st?st.c:"#d97706"}">${st?st.t:"offen"}</span></td><td>${esc(a.note||"")}</td><td>${a.photos.length||""}</td></tr>`; }); });
+    scGroupSpots(g).forEach(sp=>{ const a=SC.a[sp.id], st=a.st?SC_ST[a.st]:null; h+=`<tr><td>${sp.id}</td><td><b>${esc(sp.t)}</b><ul class="rp-pk">${sp.p.map(x=>`<li>${esc(x)}</li>`).join("")}</ul><div class="rp-ok">Vollständig, wenn ${esc(sp.ok)}</div></td><td><span class="rp-b" style="background:${st?st.c:"#d97706"}">${st?st.t:"offen"}</span></td><td>${esc(a.note||"")}</td><td>${a.photos.length||""}</td></tr>`; }); });
   h+=`</table>`;
   if((SC.fazit||"").trim()) h+=`<h2>Abschließende Bemerkung</h2><p>${esc(SC.fazit)}</p>`;
   h+=`<p class="rp-conf">Der mechanische Aufbau von ${esc(H.nvt||"NVt")}${H.strasse?", "+esc(H.strasse):""} wurde am ${d} anhand von ${SC_ORDER.length} Bereichen geprüft. Ergebnis: ${r.t}.</p><div class="rp-sig">${esc(H.pruefer||"Prüfer")}, ${d}</div>`;
@@ -5607,7 +5616,7 @@ async function scView(){
   $("rpClose").onclick=()=>{ document.body.classList.remove("rp-open"); o.innerHTML=""; };
   $("rpPrint").onclick=()=>window.print();
   $("rpShare").onclick=()=>{ scShare(); };
-  Promise.all([scSchemaImg("auf"),scSchemaImg("exp")]).then(a=>{ const t=$("rpSchema"); if(t) t.innerHTML=a.filter(Boolean).map(i=>`<img src="${i}" alt="Schema">`).join(""); });
+  scSchemaImg("exp").then(i=>{ const t=$("rpSchema"); if(t&&i) t.innerHTML=`<img src="${i}" alt="Schema">`; });
 }
 // Bericht im Voraus erzeugen: Teilen am iPhone verlangt, dass der Fingertipp direkt zum Teilen führt
 const SC_TOUCH=("ontouchstart" in window)||navigator.maxTouchPoints>0;
