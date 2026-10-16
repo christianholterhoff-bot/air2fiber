@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Air²Fiber v0.31.8</title>
+<title>Air²Fiber v0.31.9</title>
 <style>
   /* ============================================================
      Design-Tokens (Farbpalette)
@@ -406,7 +406,7 @@
   .req{color:var(--verm);font-weight:700}
   select.req-miss{border-color:var(--verm);box-shadow:0 0 0 2px rgba(235,75,10,.15)}
 
-  /* ============ Tailwind Look (v0.31.8) ============ */
+  /* ============ Tailwind Look (v0.31.9) ============ */
   body{font-size:14px;line-height:1.5;color:var(--ink);background:var(--bg)}
   .lang-sel{background:#1e293b;color:#f8fafc;border:1px solid #334155;border-radius:8px;padding:6px 8px;font:inherit;font-size:13px;max-width:170px}
   html[dir=rtl] svg,html[dir=rtl] canvas,html[dir=rtl] input[type=number],html[dir=rtl] .mono,html[dir=rtl] .ec{direction:ltr}
@@ -617,6 +617,31 @@
   @media(max-width:980px){ .sc-chips{grid-template-columns:repeat(4,1fr)} }
   @media(max-width:760px){ header.app{position:relative} }
 
+/* iPad und Tablet: Schema kleiner, Fragebereich größer, größere Schrift */
+@media(min-width:700px){
+  .ns-wrap{grid-template-columns:minmax(220px,.62fr) minmax(0,1.38fr);gap:16px;padding:14px}
+  .ns-stage{position:sticky;top:8px}
+  .ns-full{top:auto;bottom:12px;right:12px;padding:5px 10px;font-size:12px}
+  #scCard .sc-title,#scCard .sc-h{font-size:19px}
+  #scCard .sc-cnt2{font-size:15px}
+  #scCard .sc-sub,#scCard .sc-help{font-size:14px}
+  #scCard .sc-q{font-size:19px}
+  #scCard .sc-chip{font-size:13px;min-height:48px;padding:7px 8px}#scCard .sc-chip b{font-size:13px}
+  #scCard .sc-gh h3,#scCard .sc-gh{font-size:18px}
+  #scCard .sc-ex{font-size:16px}#scCard .sc-ex .t{line-height:1.3}#scCard .sc-ex .t small{font-size:13.5px}
+  #scCard .sc-ex .n{min-width:28px;height:28px;border-radius:14px;font-size:13px}
+  #scCard .sc-b3 button{width:46px;height:46px;border-radius:23px;font-size:19px}
+  #scCard .sc-det ul,#scCard .ns-how,#scCard .ns-wbox ul{font-size:15.5px;line-height:1.5}
+  #scCard .sc-sech,#scCard .ns-wbox b{font-size:12.5px}
+  #scCard .sc-hint{font-size:14.5px}
+  #scCard .ns-tool,#scCard .ns-src{font-size:13.5px}
+  #scCard .ns-fig figcaption{font-size:12.5px}#scCard .ns-fig img{height:120px}
+  #scCard .sc-det textarea,#scCard .field input,#scCard .field textarea{font-size:16px;padding:10px 12px}
+  #scCard .lab{font-size:14px}
+  #scCard .hbtn,#scCard .mini{font-size:15px}
+  .sc-more summary{font-size:15.5px}
+}
+@media(max-width:699px){ .ns-stage{max-width:420px;margin:0 auto} }
 #scRep{display:none}
 body.rp-open #scRep{display:block;position:fixed;inset:0;z-index:9999;background:#e2e8f0;overflow:auto;-webkit-overflow-scrolling:touch}
 .rp-bar{position:sticky;top:0;display:flex;gap:8px;flex-wrap:wrap;padding:8px;background:#0f766e;z-index:2}
@@ -689,7 +714,7 @@ body.rp-open #scRep{display:block;position:fixed;inset:0;z-index:9999;background
   <nav class="tabs"><button class="tab" data-tab="calc">Einblasrechner <span class="beta">Beta</span></button><button class="tab" data-tab="audit">Montageaudit</button><button class="tab" data-tab="ns">NVT Schnellcheck</button></nav>
   <div class="spacer"></div>
   <select id="langSel" class="hbtn lang-sel" data-i18n-skip aria-label="Sprache / Language" title="Sprache / Language"></select>
-  <span class="ver-badge" id="verBadge">v0.31.8</span>
+  <span class="ver-badge" id="verBadge">v0.31.9</span>
   <button class="hbtn ghost calc-only" id="btnMatrix">Reichweiten-Matrix</button>
   <button class="hbtn ghost calc-only" id="btnHelp">? Hilfe</button>
   <button class="hbtn ghost calc-only" id="btnReset">Zurücksetzen</button>
@@ -1628,7 +1653,7 @@ const LIMG={
 
 Object.assign(GIMG,LIMG);
 
-const VERSION="0.31.8";
+const VERSION="0.31.9";
 
 /* ============================================================
    DATENBASIS  (aus Vetter „Kompatible Systeme — FTTx NE 3")
@@ -5203,6 +5228,7 @@ function nsBase(){
 let NS_SEL=null, NS_VB=[0,0,800,800], NS_ZOOMED=false, NS_ANIM=null;
 // Reihenfolge der Prüfung: von außen nach innen (Gruppen A bis F)
 const SC_ORDER=Object.keys(NS_GROUPS).flatMap(g=>NS_SPOTS.filter(s=>s.g===g).map(s=>s.id));
+const NUM=id=>SC_ORDER.indexOf(id)+1;   // fortlaufende Anzeigenummer, unabhängig von der internen ID
 const SC_MAXPH=6;
 let SC=null;           // Selbstcheck Zustand
 let SC_ON=false;       // Selbstcheck Ansicht aktiv
@@ -5254,16 +5280,16 @@ function nsRender(){
     const sel=SC_ON?SC_HOT===sp.id:NS_SEL===sp.id, dim=curG&&sp.g!==curG;
     h+=`<g class="ns-hs${st?" st-"+st:""}${sel?" sel":""}${dim?" dim":""}" data-id="${sp.id}" tabindex="0" role="button" aria-label="${nsEsc(sp.t)}">`;
     nsR(sp).forEach(r=>{ h+=`<rect x="${r[0]}" y="${r[1]}" width="${r[2]}" height="${r[3]}" rx="6"/>`; });
-    const b=nsR(sp)[0]; h+=`<circle class="bd" cx="${b[0]+2}" cy="${b[1]+2}" r="9"/><text class="bt" x="${b[0]+2}" y="${b[1]+5.5}">${st==="ok"?"✓":st==="mangel"?"!":sp.id}</text></g>`;
+    const b=nsR(sp)[0]; h+=`<circle class="bd" cx="${b[0]+2}" cy="${b[1]+2}" r="9"/><text class="bt" x="${b[0]+2}" y="${b[1]+5.5}">${st==="ok"?"✓":st==="mangel"?"!":NUM(sp.id)}</text></g>`;
   });
   if(SC_ON&&SC&&SC_HOT){ const sp=NS_SPOTS.find(x=>x.id===SC_HOT), a=SC.a[SC_HOT];
     if(sp&&a&&a.photos.length){ const b=nsR(sp)[0], w=168, hh=126; let x=b[0]+b[2]+10; if(x+w>796) x=Math.max(4,b[0]-w-10); const y=Math.min(Math.max(4,b[1]),796-hh);
-      h+=`<g class="ns-photo" style="pointer-events:none"><rect x="${x-3}" y="${y-3}" width="${w+6}" height="${hh+6}" rx="4" fill="#fff" stroke="#dc2626" stroke-width="2.5"/><image href="${a.photos[0]}" x="${x}" y="${y}" width="${w}" height="${hh}" preserveAspectRatio="xMidYMid slice"/><rect x="${x-3}" y="${y-3}" width="26" height="14" fill="#dc2626"/><text x="${x+1}" y="${y+8}" font-size="9" font-weight="700" fill="#fff">${sp.id}</text></g>`; } }
+      h+=`<g class="ns-photo" style="pointer-events:none"><rect x="${x-3}" y="${y-3}" width="${w+6}" height="${hh+6}" rx="4" fill="#fff" stroke="#dc2626" stroke-width="2.5"/><image href="${a.photos[0]}" x="${x}" y="${y}" width="${w}" height="${hh}" preserveAspectRatio="xMidYMid slice"/><rect x="${x-3}" y="${y-3}" width="26" height="14" fill="#dc2626"/><text x="${x+1}" y="${y+8}" font-size="9" font-weight="700" fill="#fff">${NUM(sp.id)}</text></g>`; } }
   svg.innerHTML=h;
   // Liste
   let L=""; Object.keys(NS_GROUPS).forEach(g=>{
     const it=NS_SPOTS.filter(s=>s.g===g); if(!it.length) return;
-    L+=`<div class="ns-lg">${NS_GROUPS[g]}</div>`+it.map(s=>`<button class="ns-li${NS_SEL===s.id?" sel":""}" data-id="${s.id}"><span class="n">${s.id}</span>${nsEsc(s.t)}</button>`).join("");
+    L+=`<div class="ns-lg">${NS_GROUPS[g]}</div>`+it.map(s=>`<button class="ns-li${NS_SEL===s.id?" sel":""}" data-id="${s.id}"><span class="n">${NUM(s.id)}</span>${nsEsc(s.t)}</button>`).join("");
   });
   $("nsList").innerHTML=L;
   $("nsExplore").style.display=SC_ON?"none":"";
@@ -5273,7 +5299,7 @@ function nsRender(){
 function nsPanel(){
   const el=$("nsPanel"); const sp=NS_SPOTS.find(s=>s.id===NS_SEL);
   if(!sp){ el.innerHTML=`<div class="ns-empty"><b>So geht es</b><br>Mit der Maus über einen Bereich fahren oder antippen. Ein Klick vergrößert den Bereich und zeigt, was dort zu beachten ist.</div>`; return; }
-  el.innerHTML=`<div class="ns-ph"><span class="n">${sp.id}</span><div><div class="ns-pg">${NS_GROUPS[sp.g]}</div><h3>${nsEsc(sp.t)}</h3></div></div>
+  el.innerHTML=`<div class="ns-ph"><span class="n">${NUM(sp.id)}</span><div><div class="ns-pg">${NS_GROUPS[sp.g]}</div><h3>${nsEsc(sp.t)}</h3></div></div>
    ${nsHowHtml(sp.id)}${nsWHtml(sp.id)}${nsImgHtml(sp.id)}
    <div class="ns-sec">Was zu prüfen ist</div><ul>${sp.p.map(x=>`<li>${nsEsc(x)}</li>`).join("")}</ul>
    <div class="ns-sec warn">Typischer Fehler</div><div class="ns-txt">${nsEsc(sp.f)}</div>
@@ -5383,7 +5409,7 @@ function scRowHtml(sp){
   const a=SC.a[sp.id], open=SC_EXP.has(sp.id);
   return `<div class="sc-row${a.st?" st-"+a.st:""}${open?" open":""}" data-row="${sp.id}">
     <div class="sc-rh">
-      <button class="sc-ex" data-ex="${sp.id}" aria-expanded="${open}"><span class="n">${sp.id}</span><span class="t">${nsEsc(sp.t)}${a.note?`<small>${nsEsc(a.note)}</small>`:""}</span>${a.photos.length?`<span class="pc">${IC_CAM}${a.photos.length}</span>`:""}<span class="cv">▸</span></button>
+      <button class="sc-ex" data-ex="${sp.id}" aria-expanded="${open}"><span class="n">${NUM(sp.id)}</span><span class="t">${nsEsc(sp.t)}${a.note?`<small>${nsEsc(a.note)}</small>`:""}</span>${a.photos.length?`<span class="pc">${IC_CAM}${a.photos.length}</span>`:""}<span class="cv">▸</span></button>
       <div class="sc-b3">${Object.entries(SC_ST).map(([k,v])=>`<button data-st="${k}" data-id="${sp.id}" class="${a.st===k?"on":""}" style="--c:${v.c}" title="${v.t}" aria-label="${v.t}">${k==="ok"?"✓":k==="mangel"?"!":"–"}</button>`).join("")}</div>
     </div>
     ${open?`<div class="sc-det">
@@ -5505,7 +5531,7 @@ function scJump(id){ const sp=NS_SPOTS.find(s=>s.id===id); if(!sp) return;
   const gi=SC_GROUPS.indexOf(sp.g); if(SC.step!==gi){ SC.step=gi; scSave(); }
   SC_EXP=new Set([id]); SC_HOT=id; nsRender(); scFocus();
   const r=document.querySelector(`#scCard [data-row="${id}"]`); if(r){ r.scrollIntoView({behavior:"smooth",block:"nearest"}); r.classList.add("flash"); setTimeout(()=>r.classList.remove("flash"),900); } }
-function scBig(list,i,id){ const sp=NS_SPOTS.find(s=>s.id===id); const keys=list.map((p,k)=>{ const key="__sc"+k; GIMG[key]={t:`Bereich ${id} ${sp?sp.t:""}, Foto ${k+1}`,c:"",q:"",s:p}; return key; }); lbOpen(keys,i); }
+function scBig(list,i,id){ const sp=NS_SPOTS.find(s=>s.id===id); const keys=list.map((p,k)=>{ const key="__sc"+k; GIMG[key]={t:`Bereich ${NUM(id)} ${sp?sp.t:""}, Foto ${k+1}`,c:"",q:"",s:p}; return key; }); lbOpen(keys,i); }
 function scAddPhotos(id,files){
   const a=SC.a[id]; const list=[...files].slice(0,SC_MAXPH-a.photos.length); let left=list.length; if(!left) return;
   list.forEach(f=>{ const rd=new FileReader();
@@ -5528,7 +5554,7 @@ function scSchemaImg(view){
       const col=st==="mangel"?"#dc2626":st==="ok"?"#059669":st==="na"?"#64748b":"#d97706";
       const fill=st==="mangel"?"rgba(220,38,38,.30)":"none";
       RR(sp).forEach(r=>{ s+=`<rect x="${r[0]}" y="${r[1]}" width="${r[2]}" height="${r[3]}" rx="6" fill="${fill}" stroke="${col}" stroke-width="${st==="mangel"?3:1.5}"${st?"":' stroke-dasharray="5 3"'}/>`; });
-      const b=RR(sp)[0]; s+=`<circle cx="${b[0]+2}" cy="${b[1]+2}" r="10" fill="${col}" stroke="#fff" stroke-width="1.5"/><text x="${b[0]+2}" y="${b[1]+6}" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">${sp.id}</text>`; });
+      const b=RR(sp)[0]; s+=`<circle cx="${b[0]+2}" cy="${b[1]+2}" r="10" fill="${col}" stroke="#fff" stroke-width="1.5"/><text x="${b[0]+2}" y="${b[1]+6}" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">${NUM(sp.id)}</text>`; });
     s+="</svg>";
     const img=new Image(); img.onload=()=>{ const cv=document.createElement("canvas"); cv.width=1200; cv.height=1200; const g=cv.getContext("2d"); g.fillStyle="#fff"; g.fillRect(0,0,1200,1200); g.drawImage(img,0,0,1200,1200);
       try{ res(cv.toDataURL("image/jpeg",0.85)); }catch(e){ res(null); } };
@@ -5596,7 +5622,7 @@ async function scPDF(silent){
           const ex=isL?tx+tw:tx, ey=ty+th/2, px=x0+it.px*k, py=sy+it.py*k;
           P.line(ex,ey,px,py,"#dc2626",0.8); P.rect(px-2,py-2,4,4,"#dc2626");
           fit(it.src,tx,ty,tw,th); P.rect(tx,ty,tw,th,null,"#dc2626",1);
-          P.rect(tx,ty,20,11,"#dc2626"); P.text(tx+3,ty+8.5,String(it.id),8,true,"#ffffff"); }); });
+          P.rect(tx,ty,20,11,"#dc2626"); P.text(tx+3,ty+8.5,String(NUM(it.id)),8,true,"#ffffff"); }); });
     }
     P.y+=blockH+6;
     const lg=[["#059669","in Ordnung"],["#dc2626","Mangel"],["#64748b","entfällt"],["#d97706","offen"]]; let lx=M+(CW-320)/2;
@@ -5609,7 +5635,7 @@ async function scPDF(silent){
     mg.forEach(id=>{ const sp=NS_SPOTS.find(s=>s.id===id), a=SC.a[id];
       const nl=wrapText(a.note||"Keine Beschreibung eingetragen.",9,false,CW-30); const np=a.photos.length; const hh=22+nl.length*11+(np?11:0);
       P.ensure(hh+6); P.rect(M,P.y,CW,hh,"#fef2f2"); P.rect(M,P.y,4,hh,"#dc2626");
-      P.text(M+12,P.y+14,`Bereich ${id}: ${sp.t}`,9.5,true,"#991b1b");
+      P.text(M+12,P.y+14,`Bereich ${NUM(id)}: ${sp.t}`,9.5,true,"#991b1b");
       nl.forEach((l,j)=>P.text(M+12,P.y+27+j*11,l,9,false,"#333333"));
       if(np) P.text(M+12,P.y+27+nl.length*11,`${np} ${np===1?"Bild":"Bilder"}, siehe Mängelbilder auf der letzten Seite`,8,false,"#991b1b");
       P.y+=hh+6; });
@@ -5633,7 +5659,7 @@ async function scPDF(silent){
       const hh=Math.max(nl.length*10,lh)+5;
       if(P.ensure(hh)) head();
       if(k%2) P.rect(M,P.y,CW,hh,"#f8fafc");
-      P.text(cx[0]+4,P.y+10.5,String(sp.id),8.5,true);
+      P.text(cx[0]+4,P.y+10.5,String(NUM(sp.id)),8.5,true);
       let yy=P.y;
       tl.forEach(l=>{ P.text(cx[1]+4,yy+10.5,l,8.5,true); yy+=10.5; });
       pl.forEach(L=>{ L.forEach((l,j)=>{ if(j===0) P.text(cx[1]+4,yy+9.4,"•",7.8,false,"#333333"); P.text(cx[1]+13,yy+9.4,l,7.8,false,"#333333"); yy+=9.6; }); });
@@ -5660,12 +5686,12 @@ async function scPDF(silent){
   // übrige Fotos je Bereich
   const rest=SC_ORDER.filter(id=>SC.a[id].st!=="mangel"&&SC.a[id].photos.length);
   if(rest.length){ P.newPage(); h2("Fotodokumentation");
-    const items=[]; rest.forEach(id=>{ const sp=NS_SPOTS.find(s=>s.id===id); SC.a[id].photos.forEach((p,k)=>items.push([p,`Bereich ${id} ${sp.t}, Foto ${k+1}`])); });
+    const items=[]; rest.forEach(id=>{ const sp=NS_SPOTS.find(s=>s.id===id); SC.a[id].photos.forEach((p,k)=>items.push([p,`Bereich ${NUM(id)} ${sp.t}, Foto ${k+1}`])); });
     grid(items,3,135); }
   // Mängelbilder auf der letzten Seite
   const mgp=SC_ORDER.filter(id=>SC.a[id].st==="mangel"&&SC.a[id].photos.length);
   if(mgp.length){ P.newPage(); h2("Mängelbilder");
-    const it2=[]; mgp.forEach(id=>{ const sp=NS_SPOTS.find(s=>s.id===id); SC.a[id].photos.forEach((p,k)=>it2.push([p,`Bereich ${id} ${sp.t}, Foto ${k+1}`,"#991b1b"])); });
+    const it2=[]; mgp.forEach(id=>{ const sp=NS_SPOTS.find(s=>s.id===id); SC.a[id].photos.forEach((p,k)=>it2.push([p,`Bereich ${NUM(id)} ${sp.t}, Foto ${k+1}`,"#991b1b"])); });
     grid(it2,3,135); }
   const bytes=P.output((i,tot)=>{
     P.line(M,P.H-M+4,M+CW,P.H-M+4,"#dddddd");
@@ -5685,17 +5711,17 @@ function scViewHtml(){
   <div class="rp-top"><table class="rp-kv">${[["NVt Nummer",H.nvt],["Projekt",H.projekt],["Straße",H.strasse],["Prüfer",H.pruefer],...((H.teiln||"").trim()?[["Weitere Teilnehmer",H.teiln.trim().replace(/\s*\n\s*/g,", ")]]:[]),["Datum",d]].map(([k,v])=>`<tr><th>${k}</th><td>${esc(v||"-")}</td></tr>`).join("")}</table>
   <div class="rp-res" style="border-color:${r.c};background:${r.bg}"><b style="color:${r.c}">${r.t}</b><div>${esc(r.d)}</div><div><b>${e.c.ok} in Ordnung, ${e.c.mangel} ${e.c.mangel===1?"Mangel":"Mängel"}, ${e.c.na} entfällt${e.c.offen?`, ${e.c.offen} offen`:""}</b></div></div></div>`;
   h+=`<h2>NVT Schema</h2><div id="rpSchema" class="rp-schema"></div>`;
-  if(mg.length){ h+=`<h2>Mängel (${mg.length})</h2>`+mg.map(id=>{ const sp=NS_SPOTS.find(x=>x.id===id), a=SC.a[id], np=a.photos.length; return `<div class="rp-m"><b>Bereich ${id}: ${esc(sp.t)}</b><div>${esc(a.note||"Keine Beschreibung eingetragen.")}</div>${np?`<div class="rp-mref">${np} ${np===1?"Bild":"Bilder"}, siehe Mängelbilder am Ende</div>`:""}</div>`; }).join(""); }
+  if(mg.length){ h+=`<h2>Mängel (${mg.length})</h2>`+mg.map(id=>{ const sp=NS_SPOTS.find(x=>x.id===id), a=SC.a[id], np=a.photos.length; return `<div class="rp-m"><b>Bereich ${NUM(id)}: ${esc(sp.t)}</b><div>${esc(a.note||"Keine Beschreibung eingetragen.")}</div>${np?`<div class="rp-mref">${np} ${np===1?"Bild":"Bilder"}, siehe Mängelbilder am Ende</div>`:""}</div>`; }).join(""); }
   h+=`<h2 class="rp-pb">Ergebnis je Bereich</h2><table class="rp-t"><tr><th>Nr.</th><th>Bereich und Prüfkriterien</th><th>Ergebnis</th><th>Bemerkung</th><th>Fotos</th></tr>`;
   SC_GROUPS.forEach(g=>{ h+=`<tr class="g"><td colspan="5">${NS_GROUPS[g]}</td></tr>`;
-    scGroupSpots(g).forEach(sp=>{ const a=SC.a[sp.id], st=a.st?SC_ST[a.st]:null; h+=`<tr><td>${sp.id}</td><td><b>${esc(sp.t)}</b><ul class="rp-pk">${sp.p.map(x=>`<li>${esc(x)}</li>`).join("")}</ul><div class="rp-ok">Vollständig, wenn ${esc(sp.ok)}</div></td><td><span class="rp-b" style="background:${st?st.c:"#d97706"}">${st?st.t:"offen"}</span></td><td>${esc(a.note||"")}</td><td>${a.photos.length||""}</td></tr>`; }); });
+    scGroupSpots(g).forEach(sp=>{ const a=SC.a[sp.id], st=a.st?SC_ST[a.st]:null; h+=`<tr><td>${NUM(sp.id)}</td><td><b>${esc(sp.t)}</b><ul class="rp-pk">${sp.p.map(x=>`<li>${esc(x)}</li>`).join("")}</ul><div class="rp-ok">Vollständig, wenn ${esc(sp.ok)}</div></td><td><span class="rp-b" style="background:${st?st.c:"#d97706"}">${st?st.t:"offen"}</span></td><td>${esc(a.note||"")}</td><td>${a.photos.length||""}</td></tr>`; }); });
   h+=`</table>`;
   if((SC.fazit||"").trim()) h+=`<h2>Abschließende Bemerkung</h2><p>${esc(SC.fazit)}</p>`;
   h+=`<p class="rp-conf">Der mechanische Aufbau von ${esc(H.nvt||"NVt")}${H.strasse?", "+esc(H.strasse):""} wurde am ${d} anhand von ${SC_ORDER.length} Bereichen geprüft. Ergebnis: ${r.t}.</p><div class="rp-sigs">${[["Prüfer",H.pruefer,"pruefer"],["Gegenzeichnung",SC.gname,"gegen"]].map(([t,n,k])=>{ const g=(SC.sig||{})[k]; return `<div><b>${t}</b><div>${esc(n||"")}</div><div class="rp-sigbox">${g&&g.img?`<img src="${g.img}" alt="Unterschrift">`:""}</div>${g?`<small>unterschrieben ${new Date(g.ts).toLocaleString("de-DE")}</small>`:""}</div>`; }).join("")}</div>`;
   const rest=SC_ORDER.filter(id=>SC.a[id].st!=="mangel"&&SC.a[id].photos.length);
-  if(rest.length){ h+=`<h2 class="rp-pb">Fotodokumentation</h2>`+rest.map(id=>{ const sp=NS_SPOTS.find(x=>x.id===id); return `<h3>Bereich ${id}: ${esc(sp.t)}</h3>`+ph(SC.a[id].photos,"Bereich "+id); }).join(""); }
+  if(rest.length){ h+=`<h2 class="rp-pb">Fotodokumentation</h2>`+rest.map(id=>{ const sp=NS_SPOTS.find(x=>x.id===id); return `<h3>Bereich ${NUM(id)}: ${esc(sp.t)}</h3>`+ph(SC.a[id].photos,"Bereich "+NUM(id)); }).join(""); }
   const mgp=SC_ORDER.filter(id=>SC.a[id].st==="mangel"&&SC.a[id].photos.length);
-  if(mgp.length){ h+=`<h2 class="rp-pb">Mängelbilder</h2>`+mgp.map(id=>{ const sp=NS_SPOTS.find(x=>x.id===id); return `<h3>Bereich ${id}: ${esc(sp.t)}</h3>`+ph(SC.a[id].photos,"Bereich "+id); }).join(""); }
+  if(mgp.length){ h+=`<h2 class="rp-pb">Mängelbilder</h2>`+mgp.map(id=>{ const sp=NS_SPOTS.find(x=>x.id===id); return `<h3>Bereich ${NUM(id)}: ${esc(sp.t)}</h3>`+ph(SC.a[id].photos,"Bereich "+NUM(id)); }).join(""); }
   h+=`<div class="rp-foot">Air2Fiber v${VERSION}, © Christian Holterhoff</div>`;
   return h;
 }
